@@ -28,7 +28,11 @@ public class LoadObstacles : MonoBehaviour {
 	public GameObject emptySlot;
 	// Use this for initialization
 	void Start () {
+		//InilializeMap ();
 
+	}
+
+	public void InilializeMap(){
 		for (int z = 0; z < map.Length; z++) {
 			for (int x = 0; x < map[0].Length; x++) {
 				float xPos = this.transform.position.x + x;
@@ -46,6 +50,13 @@ public class LoadObstacles : MonoBehaviour {
 				                               this.transform.rotation * clone.transform.rotation) as GameObject;
 				clone.transform.parent = this.transform;
 			}
+		}
+	}
+
+	public void Reset(){
+		GameObject[] children = GameObject.FindGameObjectsWithTag ("Obstacle");
+		foreach(GameObject child in children){
+			Destroy(child);
 		}
 	}
 	

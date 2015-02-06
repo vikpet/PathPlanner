@@ -30,7 +30,10 @@ public class DiscreteController : MonoBehaviour {
 	}
 
 	public void Run(int hood){
-		map = GameObject.Find ("Obstacles").GetComponent<LoadObstacles>().map;
+		LoadObstacles obstacles = GameObject.Find ("Obstacles").GetComponent<LoadObstacles>();
+		obstacles.Reset ();
+		obstacles.InilializeMap ();
+		map = obstacles.map;
 		transform.position = new Vector3 (1.0f, 0.5f, 1.0f);
 		path = A_StarPathPlanner.aStar ( map, new A_StarPathPlanner.Point(1,1), 
 		                                new A_StarPathPlanner.Point(19,14), hood);
