@@ -27,7 +27,7 @@ public class KinematicPointController : MonoBehaviour {
 		if ((transform.position - target.transform.position).sqrMagnitude <= minDistance * minDistance)
 		{
 			GetNextWaypoint();
-		}
+		}	
 	}
 	// Update is called once per frame
 	void Update () {
