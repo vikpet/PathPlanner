@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class A_StarPathPlanner : MonoBehaviour {
 
-	public static int hood = 4;
+	//public static int hood = 4;
 
 	private static int[][] fourHood = new int[4][] {new int[2]{-1, 0},new int[2]{1,0},new int[2]{0,-1},new int[2]{0,1}};
 	private static int[][] eightHood = new int[8][] {new int[2]{-1, 0},new int[2]{1,0},new int[2]{0,-1},new int[2]{0,1},
@@ -43,7 +43,7 @@ public class A_StarPathPlanner : MonoBehaviour {
 
 
 
-	public static LinkedList<Vector3> aStar(int[][] map, Point start, Point goal) {
+	public static LinkedList<Vector3> aStar(int[][] map, Point start, Point goal, int hood) {
 		int[][] currentHood;
 		if(hood == 4){
 			currentHood = fourHood;
@@ -85,7 +85,7 @@ public class A_StarPathPlanner : MonoBehaviour {
 				}
 
 			}
-			Debug.Log("Best Now x:" + bestPoint.x + " y:" + bestPoint.y +" \n");
+			//Debug.Log("Best Now x:" + bestPoint.x + " y:" + bestPoint.y +" \n");
 			openSet.Remove(bestPoint);
 			if(bestPoint.numEquals(goal)) 
 				return reconstructPath(cameFrom, goal);
@@ -115,10 +115,14 @@ public class A_StarPathPlanner : MonoBehaviour {
 				double tentativeGScore = gScore[bestPoint] + bestPoint.distance(n);
 				
 				if(!openSet.Contains(n) || tentativeGScore < gScore[n]) {
-					cameFrom.Add(n, bestPoint);
-					gScore.Add(n, tentativeGScore);
-					fScore.Add(n, gScore[n] + n.distance(goal));
-					if(!openSet.Contains(n)) {
+					if(openSet.Contains(n)){
+						cameFrom[n] = bestPoint;
+						gScore[n] =  tentativeGScore;
+						fScore[n] = gScore[n] + n.distance(goal);
+					}else{
+						cameFrom.Add(n, bestPoint);
+						gScore.Add(n, tentativeGScore);
+						fScore.Add(n, gScore[n] + n.distance(goal));
 						openSet.Add(n);
 					}
 				}
