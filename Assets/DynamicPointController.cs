@@ -33,10 +33,13 @@ public class DynamicPointController : MonoBehaviour {
 		direction *= 1.0f;
 		Vector3 velocity = rigidbody.velocity;
 		Vector3 velocityChange = (direction - velocity);
-		velocityChange.x = Mathf.Clamp(velocityChange.x, -aMax, aMax);
-		velocityChange.z = Mathf.Clamp(velocityChange.z, -aMax, aMax);
+//		velocityChange.x = Mathf.Clamp(velocityChange.x, -aMax, aMax);
+//		velocityChange.z = Mathf.Clamp(velocityChange.z, -aMax, aMax);
 		velocityChange.y = 0;
-		rigidbody.AddForce(velocityChange.normalized, ForceMode.Acceleration);
+		if (velocityChange.magnitude > aMax) {
+			velocityChange = velocityChange.normalized * aMax;
+		}
+		rigidbody.AddForce(velocityChange, ForceMode.Acceleration);
 		
 		// todo: need to rotate the model towards the waypoint we are moving towards
 		
