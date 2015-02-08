@@ -116,31 +116,59 @@ end
 		newVertices.Add (new Vector3 (x + 1, y, z + 1));*/
 		for(int i = 0; i < vertices.GetLength(0); i++) {
 			newVertices.Add(new Vector3((float) vertices[i,0], 0, (float) vertices[i,1]));
+			newVertices.Add(new Vector3((float) vertices[i,0], 1, (float) vertices[i,1]));
 		}
 
 			
-			newTriangles.Add(0);
-			newTriangles.Add(1);
-			newTriangles.Add(3);
-			newTriangles.Add(1);
-			newTriangles.Add(2);
-			newTriangles.Add(3);
-		newTriangles.Add(0);
-		newTriangles.Add(4);
-		newTriangles.Add(1);
-		newTriangles.Add(1);
-		newTriangles.Add(4);
-		newTriangles.Add(2);
-		newTriangles.Add(2);
-		newTriangles.Add(4);
-		newTriangles.Add(3);
-		newTriangles.Add(0);
-		newTriangles.Add(3);
-		newTriangles.Add(4);
+			newTriangles.Add(0 + 1);
+			newTriangles.Add(2*3 + 1);
+			newTriangles.Add(2*2 + 1);
+			newTriangles.Add(0 + 1);
+			newTriangles.Add(2*2 + 1);
+			newTriangles.Add(2*1 + 1);
+
+		newTriangles.Add(2*4 + 1);
+		newTriangles.Add(2*5 + 1);
+		newTriangles.Add(2*9 + 1);
+		newTriangles.Add(2*5 + 1);
+		newTriangles.Add(2*6 + 1);
+		newTriangles.Add(2*9 + 1);
+		newTriangles.Add(2*6 + 1);
+		newTriangles.Add(2*7 + 1);
+		newTriangles.Add(2*8 + 1);
+		newTriangles.Add(2*6 + 1);
+		newTriangles.Add(2*8 + 1);
+		newTriangles.Add(2*9 + 1);
+
+		for (int i = 0; i < edges.GetLength(0); i++) {
+			newTriangles.Add ((edges[i,0] - 1)*2);
+			newTriangles.Add ((edges[i,0] - 1)*2 + 1);
+			newTriangles.Add ((edges[i,1] - 1)*2);
+			newTriangles.Add ((edges[i,0] - 1)*2 + 1);
+			newTriangles.Add ((edges[i,1] - 1)*2 + 1);
+			newTriangles.Add ((edges[i,1] - 1)*2);
+
+			newTriangles.Add ((edges[i,0] - 1)*2);
+			newTriangles.Add ((edges[i,1] - 1)*2);
+			newTriangles.Add ((edges[i,0] - 1)*2 + 1);
+			newTriangles.Add ((edges[i,0] - 1)*2 + 1);
+			newTriangles.Add ((edges[i,1] - 1)*2);
+			newTriangles.Add ((edges[i,1] - 1)*2 + 1);
+
+
+
+
+		}
+
 			
+
+
+
 			mesh.Clear ();
 			mesh.vertices = newVertices.ToArray();
 			mesh.triangles = newTriangles.ToArray();
+
+		transform.GetComponent<MeshCollider>().sharedMesh = mesh;
 	//		mesh.uv = newUV.ToArray(); // add this line to the code here
 			mesh.Optimize ();
 			mesh.RecalculateNormals ();

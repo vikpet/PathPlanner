@@ -67,9 +67,9 @@ public class DynamicPointController : MonoBehaviour {
 	void OnTriggerEnter(Collider other) {
 		if (other.gameObject.tag == "PickUp") {
 			other.gameObject.SetActive (false);
-			//count++;
+			count++;
 			SetCountText();
-			//			GetNextWaypoint();
+						GetNextWaypoint();
 		}
 	}
 
