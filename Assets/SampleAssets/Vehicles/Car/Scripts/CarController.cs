@@ -158,7 +158,7 @@ namespace UnitySampleAssets.Vehicles.Car
 
             // lose control of engine if immobilized
             if (immobilized) accelBrakeInput = 0;
-
+			Debug.Log ("seetInput " + steerInput + " accelBrake " + accelBrakeInput);
             ConvertInputToAccelerationAndBraking(accelBrakeInput);
             CalculateSpeedValues();
             HandleGearChanging();
@@ -326,6 +326,8 @@ namespace UnitySampleAssets.Vehicles.Car
         private void PreserveDirectionInAir()
         {
             // special feature which allows cars to remain roughly pointing in the direction of travel
+			Debug.Log (!anyOnGround && preserveDirectionWhileInAir && rigidbody.velocity.magnitude > smallSpeed);
+
             if (!anyOnGround && preserveDirectionWhileInAir && rigidbody.velocity.magnitude > smallSpeed)
             {
                 rigidbody.MoveRotation(Quaternion.Slerp(rigidbody.rotation, Quaternion.LookRotation(rigidbody.velocity),
