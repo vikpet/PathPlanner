@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
+using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
 public class LoadPolygonObstacles : MonoBehaviour {
 
+	public string saveAs;
+
 	private int[,] edges;
 	private double[,] vertices;
 
-	private float tUnit = 0.25f;
+//	private float tUnit = 0.25f;
 	private Vector2 tStone = new Vector2 (0, 0);
 	private Vector2 tGrass = new Vector2 (0, 1);
 
@@ -76,31 +79,6 @@ public class LoadPolygonObstacles : MonoBehaviour {
 				{17.1659, 13.0117},
 				{12.0968, 24.4152}};
 
-		/*for (int i = 0; i < edges.Length; i++) {
-			GameObject polygon = new GameObject();
-			polygon.name = "Polygon Obstacle";
-			//Transform clone = (Transform) GameObject.Instantiate(boxPrefab, new Vector3(xPos, yPos, zPos), Quaternion.identity);
-			polygon.transform.parent = this.transform;
-
-//			MeshFilter mf = polygon.AddComponent("MeshFilter") as MeshFilter;
-//			mf.mesh = CreateMesh(new Vector3[] {new Vector3(1, 0, 1), new Vector3(2, 0, 2), new Vector3(1, 0, 2)});
-		}*/
-		/*
-		 * for(i=1:length(x))
-    
-    edges(i,1)=i;
-    if (button(i)==1)
-        edges(i,2)=i+1;
-    elseif (button(i)==3)
-        edges(i,2)=firstEdge;
-        firstEdge=i+1
-    end
-    plot([x(edges(i,1)),x(edges(i,2))],[y(edges(i,1)),y(edges(i,2))]);
-    hold on
-    drawnow
-end
-*/
-		// Use this for initialization
 			
 			mesh = GetComponent<MeshFilter> ().mesh;
 			
@@ -108,12 +86,6 @@ end
 			float y = transform.position.y;
 			float z = transform.position.z;
 			
-			
-			/*newVertices.Add( new Vector3 (x  , y  , z ));
-			newVertices.Add( new Vector3 (x + 1 , y  , z ));
-			newVertices.Add( new Vector3 (x + 1 , y  , z ));
-			newVertices.Add( new Vector3 (x  , y-1  , z ));
-		newVertices.Add (new Vector3 (x + 1, y, z + 1));*/
 		for(int i = 0; i < vertices.GetLength(0); i++) {
 			newVertices.Add(new Vector3((float) vertices[i,0], 0, (float) vertices[i,1]));
 			newVertices.Add(new Vector3((float) vertices[i,0], 1, (float) vertices[i,1]));
@@ -139,6 +111,30 @@ end
 		newTriangles.Add(2*6 + 1);
 		newTriangles.Add(2*8 + 1);
 		newTriangles.Add(2*9 + 1);
+
+		newTriangles.Add(2*10 + 1);
+		newTriangles.Add(2*11 + 1);
+		newTriangles.Add(2*12 + 1);
+		newTriangles.Add(2*12 + 1);
+		newTriangles.Add(2*13 + 1);
+		newTriangles.Add(2*10 + 1);
+
+		newTriangles.Add(2*14 + 1);
+		newTriangles.Add(2*15 + 1);
+		newTriangles.Add(2*16 + 1);
+		newTriangles.Add(2*16 + 1);
+		newTriangles.Add(2*17 + 1);
+		newTriangles.Add(2*14 + 1);
+
+		newTriangles.Add(2*18 + 1);
+		newTriangles.Add(2*19 + 1);
+		newTriangles.Add(2*20 + 1);
+		newTriangles.Add(2*20 + 1);
+		newTriangles.Add(2*21 + 1);
+		newTriangles.Add(2*18 + 1);
+		newTriangles.Add(2*21 + 1);
+		newTriangles.Add(2*22 + 1);
+		newTriangles.Add(2*18 + 1); 
 
 		for (int i = 0; i < edges.GetLength(0); i++) {
 			newTriangles.Add ((edges[i,0] - 1)*2);
@@ -173,6 +169,8 @@ end
 			mesh.Optimize ();
 			mesh.RecalculateNormals ();
 
+		Mesh m1 = transform.GetComponent<MeshFilter>().mesh;
+//		AssetDatabase.CreateAsset(m1, "Assets/Meshes/" + saveAs + ".asset");
 
 		}
 

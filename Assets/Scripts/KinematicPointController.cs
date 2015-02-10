@@ -6,7 +6,7 @@ public class KinematicPointController : MonoBehaviour {
 	public float vMax;
 	public const float minDistance = 0.2f;
 
-	public UnityEngine.UI.Text countText;
+	public GUIText countText;
 
 	private int count;
 	private Transform target;
