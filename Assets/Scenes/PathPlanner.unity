@@ -2275,8 +2275,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d7a4ec0a13fb1e45b5c0031f2a6c569, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delay: .25
-  countText: {fileID: 2112040504}
+  delay: .100000001
+  countText: {fileID: 1356526277}
   hood: 0
 --- !u!114 &460694743
 MonoBehaviour:
@@ -2473,7 +2473,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &576172870
 Transform:
   m_ObjectHideFlags: 0

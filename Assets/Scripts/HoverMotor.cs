@@ -79,6 +79,7 @@ public class HoverMotor : MonoBehaviour {
 		float step = turnSpeedRadians * Time.deltaTime;
 
 
+
 		Vector3 newRotation = Vector3.RotateTowards (transform.forward, targetDir, step, 0.0f);
 
 		Debug.DrawRay(transform.position, newRotation*2	, Color.red);
