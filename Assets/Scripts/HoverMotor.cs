@@ -139,8 +139,8 @@ public class HoverMotor : MonoBehaviour {
 	
 	void OnTriggerEnter(Collider other) {
 		if (other.gameObject.tag == "PickUp") {
-			//other.gameObject.SetActive (false);
-			Destroy(other.gameObject);
+			other.gameObject.SetActive (false);
+
 			count++;
 			SetCountText();
 			GetNextWaypoint();
@@ -159,8 +159,10 @@ public class HoverMotor : MonoBehaviour {
 			countText.text = " --- Done! --- ";
 			finish = true;
 		} else {
-			//target = waypoints.transform.GetChild (count);
-			target = waypoints.transform.GetChild (0);
+
+			target = waypoints.transform.GetChild (count);
+
+			//target = waypoints.transform.GetChild (0);
 		}
 	}
 }
