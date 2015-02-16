@@ -150,12 +150,13 @@ public class DynamicCarController : MonoBehaviour {
 		return MoveTowards (targetPos, current);
 	}
 
-	public class State {
-		public Transform trans;
-		public Vector3 velocity;
-		public State(Transform p, Vector3 v){
-			this.trans = p;
-			this.velocity = v;
-		}
+
+}
+public class State {
+	public Transform trans;
+	public Vector3 velocity;
+	public State(Transform p, Vector3 v){
+		this.trans = p;
+		this.velocity = v;
 	}
 }
