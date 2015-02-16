@@ -1,29 +1,40 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class HoverMotor : MonoBehaviour {
-	public float speed = 90;
+
+
+public class HoverMotor : MonoBehaviour, ModelInterface {
+	public float speed = 1f;
+	private float speedMultiplier = 4;
 	public float turnSpeedRadians = 1f;
-	public float hoverForce = 65f;
-	public float hoverHeight = 0.5f;
+	public GUIText countText;
+	public Stack states;
+	private float closeness = 0.5f;
+	//public float hoverForce = 65f;
+	//public float hoverHeight = 0.5f;
 
 	//public float turnSpeedDegrees;
 
-	private float powerInput;
-	private float turnInput;
+//	private float powerInput;
+//	private float turnInput;
 	private Rigidbody carRigidbody;
 
-	
-	public GameObject waypoints;
-	public float aMax;
-	public float minDistance;	// Some smoothening should be used. Maybe random?
-	
-	public GUIText countText;
-	
-	private int count;
-	private Transform target;
+	public ArrayList lines;
 
-	private bool finish;
+//
+//	
+//	public GameObject waypoints;
+//	public float aMax;
+//	public float minDistance;	// Some smoothening should be used. Maybe random?
+//	
+//	public GUIText countText;
+//	
+//	private int count;
+//	private Transform target;
+
+	public Transform goal;
+
+//	private bool finish;
 
 	// Use this for initialization
 	void Awake() {
@@ -32,34 +43,64 @@ public class HoverMotor : MonoBehaviour {
 
 	}
 
+	public void FollowStates(Stack s){
+		states = s;
+	}
+	public Vector3 StartPosition(){
+		return transform.position;
+	}
+
 	// Use this for initialization
 	void Start () {
-		count = 0;
-		SetCountText ();
+		//count = 0;
+		//SetCountText ();
 
+
+
+		lines = new ArrayList();
+
+		RRTTest rrt = GetComponent <RRTTest>();
+		rrt.SetModel (this);
 		//turnSpeedDegrees = turnSpeedRadians * 180 / Mathf.PI;
-		finish = false;
-		GetNextWaypoint ();
+		//finish = false;
+		//GetNextWaypoint ();
 
+	}
+	public float DistanceTo(State s, Vector3 point){
+		return Vector3.Distance(s.position,point);
 	}
 
 
 	void FixedUpdate(){
-		Ray ray = new Ray (transform.position, -transform.up);
-		RaycastHit hit; 
 
-		if(Physics.Raycast(ray,out hit, hoverHeight)){
-			float proportionalHeight = (hoverHeight - hit.distance)  / hoverHeight;
-			Vector3 appliedHoverForce = Vector3.up * proportionalHeight * hoverForce;
-			carRigidbody.AddForce(appliedHoverForce,ForceMode.Acceleration);
-			//carRigidbody.AddForce(appliedHoverForce);
+
+		if(states != null && states.Count > 0){
+			State goTo = (State)states.Peek();
+			float step = speed * Time.deltaTime;
+			transform.position = Vector3.MoveTowards(transform.position, goTo.direction, step);
+			
+			if (Vector3.Distance(transform.position,goTo.position)<closeness)
+			{
+				states.Pop ();
+			}	
 		}
 
 
+		//Ray ray = new Ray (transform.position, -transform.up);
+		//RaycastHit hit; 
 
-		if(!finish){
-			MoveTowards (target.position);
-		}
+//		if(Physics.Raycast(ray,out hit, hoverHeight)){
+//			float proportionalHeight = (hoverHeight - hit.distance)  / hoverHeight;
+//			Vector3 appliedHoverForce = Vector3.up * proportionalHeight * hoverForce;
+//			carRigidbody.AddForce(appliedHoverForce,ForceMode.Acceleration);
+//			//carRigidbody.AddForce(appliedHoverForce);
+//		}
+
+
+//
+//		if(!finish){
+//			MoveTowards (target.position);
+//		}
 
 //		carRigidbody.AddRelativeForce (0f,0f,powerInput * speed);
 //
@@ -68,6 +109,55 @@ public class HoverMotor : MonoBehaviour {
 
 	}
 
+	public State GetNextState(State s, Vector3 v){
+
+		Ray ray = new Ray (s.position, v-s.position);
+		RaycastHit hit; 
+
+		Vector3 pointDir = Vector3.Normalize (v-s.position);
+
+		float fScore;
+		float gScore;
+		bool collision = false;
+		Vector3 newPosition;
+		if (Physics.Raycast (ray, out hit, 1f)) {
+			gScore = s.gScore+hit.distance;
+			newPosition = s.position;//+(hit.distance*pointDir);
+			fScore = gScore ;//+ Vector3.Distance(newPosition,goal.position);
+			//return new State(newPosition,hit.distance*pointDir, fScore, gScore);
+			pointDir *=hit.distance;
+			collision = true;
+
+		} else {
+			gScore = s.gScore++;
+			fScore = gScore + Vector3.Distance(s.position+pointDir,goal.position);
+			newPosition = s.position+pointDir;
+
+		}
+
+		lines.Add (new Vector3[2] {s.position,newPosition});
+	
+		State retState = new State(newPosition,pointDir,fScore , gScore);
+		retState.collision = collision;
+		retState.direction = v;
+		countText.text = ""+lines.Count;
+		return retState;
+
+	}
+
+	void OnDrawGizmos() {
+		Gizmos.color = Color.black;
+		if(lines == null){
+			return;
+		}
+		foreach(Vector3[] line in lines){
+			Gizmos.DrawLine(line[0],line[1]);
+		}
+
+
+	}
+	
+	
 	private void MoveTowards(Vector3 tarPos) {
 		//Vector3 direction = tarPos - transform.position; // Calculate the direction the target is in.
 
@@ -76,15 +166,26 @@ public class HoverMotor : MonoBehaviour {
 		//float angle = Vector3.Angle (difPos,Vector3.forward);
 
 
-		float step = turnSpeedRadians * Time.deltaTime;
+		//float step = turnSpeedRadians * Time.deltaTime;
+		float step = (carRigidbody.velocity.magnitude/speedMultiplier)*turnSpeedRadians * Time.deltaTime;
+
+		
+		//Debug.Log (step + " " + (carRigidbody.velocity.magnitude/speedMultiplier)*step);
 
 
+		targetDir.y = 0.0f;
 
 		Vector3 newRotation = Vector3.RotateTowards (transform.forward, targetDir, step, 0.0f);
 
-		Debug.DrawRay(transform.position, newRotation*2	, Color.red);
+
+
+		//Debug.DrawRay(transform.position, newRotation*2	, Color.red);
+		
 
 		transform.rotation = Quaternion.LookRotation(newRotation);
+
+
+
 
 		//carRigidbody.rotation = Quaternion.Euler (Vector3.RotateTowards());
 
@@ -93,16 +194,13 @@ public class HoverMotor : MonoBehaviour {
 
 
 
-		carRigidbody.velocity = carRigidbody.transform.forward * 4;
+		carRigidbody.velocity = carRigidbody.transform.forward * speedMultiplier;
 
 
-		Debug.Log (
-			"Target position: " + tarPos
-			+"\n Car position: " + carRigidbody.position
-			+"\n Target - car: " + (tarPos-carRigidbody.transform.position)
-			+"\n Angle : " + step
 
-			);
+
+
+
 
 //		direction *= 1.0f;
 //		Vector3 velocity = rigidbody.velocity;
@@ -138,32 +236,32 @@ public class HoverMotor : MonoBehaviour {
 //		}
 	}
 	
-	void OnTriggerEnter(Collider other) {
-		if (other.gameObject.tag == "PickUp") {
-			other.gameObject.SetActive (false);
-
-			count++;
-			SetCountText();
-			GetNextWaypoint();
-			if(target == null){
-				finish = true;
-			}
-		}
-	}
+//	void OnTriggerEnter(Collider other) {
+//		if (other.gameObject.tag == "PickUp") {
+//			other.gameObject.SetActive (false);
+//
+//			count++;
+//			SetCountText();
+//			GetNextWaypoint();
+//			if(target == null){
+//				finish = true;
+//			}
+//		}
+//	}
 	
-	void SetCountText() {
-		countText.text = "Count: " + count.ToString ();
-	}
-	
-	void GetNextWaypoint() {
-		if (count >= waypoints.transform.childCount) {
-			countText.text = " --- Done! --- ";
-			finish = true;
-		} else {
-
-			target = waypoints.transform.GetChild (count);
-
-			//target = waypoints.transform.GetChild (0);
-		}
-	}
+//	void SetCountText() {
+//		countText.text = "Count: " + count.ToString ();
+//	}
+//	
+//	void GetNextWaypoint() {
+//		if (count >= waypoints.transform.childCount) {
+//			countText.text = " --- Done! --- ";
+//			finish = true;
+//		} else {
+//
+//			target = waypoints.transform.GetChild (count);
+//
+//			//target = waypoints.transform.GetChild (0);
+//		}
+//	}
 }
