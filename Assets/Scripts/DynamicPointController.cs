@@ -35,6 +35,8 @@ public class DynamicPointController : MonoBehaviour {
 
 	private void MoveTowards(Vector3 tarPos) {
 		Vector3 direction = tarPos - transform.position; // Calculate the direction the target is in.
+		float stopping_distance = rigidbody.velocity.magnitude * rigidbody.velocity.magnitude / (2.0f * aMax);
+
 		direction *= 1.0f;
 		Vector3 velocity = rigidbody.velocity;
 		Vector3 velocityChange = (direction - velocity);

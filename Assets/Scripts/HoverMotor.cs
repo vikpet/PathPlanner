@@ -74,14 +74,14 @@ public class HoverMotor : MonoBehaviour {
 		Vector3 targetDir = tarPos - transform.position;
 
 		//float angle = Vector3.Angle (difPos,Vector3.forward);
-
+		targetDir.y = 0.0f; 
 
 		float step = turnSpeedRadians * Time.deltaTime;
 
 
 
 		Vector3 newRotation = Vector3.RotateTowards (transform.forward, targetDir, step, 0.0f);
-
+		newRotation.y = 0.0f;
 		Debug.DrawRay(transform.position, newRotation*2	, Color.red);
 
 		transform.rotation = Quaternion.LookRotation(newRotation);
