@@ -23,19 +23,19 @@ public class DynamicPointController : MonoBehaviour, ModelInterface {
 	public float DistanceTo(State s, Vector3 point){
 		Vector3 relHit = point - s.position;
 
-		if(Vector3.Dot(s.direction,relHit)<0.0f){
+		//if(Vector3.Dot(s.direction,relHit)<0.0f){
 			float dist = (s.direction.magnitude*s.direction.magnitude)/(2*aMax);
 
 			return dist+Vector3.Distance(s.direction.normalized*dist,relHit);
-		}
+		//}
 
 
-		if((s.position.x*s.position.x)/(2*aMax)>Mathf.Abs(s.position.x-point.x)/2){ //brake in x
-			if(s.position.z*s.position.z)/(2*aMax)>Mathf.Abs(s.position.z-point.z)/2){//brake in z
-
-			}
-
-		}
+//		if((s.position.x*s.position.x)/(2*aMax)>Mathf.Abs(s.position.x-point.x)/2){ //brake in x
+//			if(s.position.z*s.position.z)/(2*aMax)>Mathf.Abs(s.position.z-point.z)/2){//brake in z
+//
+//			}
+//
+//		}
 
 
 //		float distance = Vector3.Distance (s.position+s.direction, relHit/2);
@@ -190,17 +190,34 @@ public class DynamicPointController : MonoBehaviour, ModelInterface {
 		Vector3 relHitPoint = v - s.position;
 		Vector3 halfPoint = relHitPoint / 2;
 
-		if(Vector3.Distance(currentState.direction,halfPoint)<aMax*0.02){
-			if(Vector3.Distance(relHitPoint,currentState.direction)<aMax*0.02){ //go for goal
 
-				currentState.direction = relHitPoint;
-			}else{ // go for mid
-				currentState.direction = halfPoint;
+		if (Vector3.Dot (s.direction, relHitPoint) < 0.0f) {
+			currentState.direction  = currentState.direction -  (aMax*0.02f)*currentState.direction.normalized;
+		} else {
+
+			if(Mathf.Sign(s.position.x)*(s.position.x*s.position.x)/(2*aMax)>relHitPoint.x/2){ //brake in x
+				if(s.position.z*s.position.z)/(2*aMax)>Mathf.Abs(s.position.z-point.z)/2){//brake in z
+	
+				}
+	
 			}
-		}else{ // go in direction of mid
 
-			currentState.direction = currentState.direction + (aMax*0.02f)*Vector3.Normalize(halfPoint - currentState.direction);
+
 		}
+
+
+
+//		if(Vector3.Distance(currentState.direction,halfPoint)<aMax*0.02){
+//			if(Vector3.Distance(relHitPoint,currentState.direction)<aMax*0.02){ //go for goal
+//
+//				currentState.direction = relHitPoint;
+//			}else{ // go for mid
+//				currentState.direction = halfPoint;
+//			}
+//		}else{ // go in direction of mid
+//
+//			currentState.direction = currentState.direction + (aMax*0.02f)*Vector3.Normalize(halfPoint - currentState.direction);
+//		}
 
 
 		return currentState;
