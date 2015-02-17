@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -15,8 +15,8 @@ public class RRT_PathPlanner : MonoBehaviour {
 		controller = MotionModel.GetComponent<DynamicCarController> ();
 //		DynamicCarController.State ;
 
-		State start_state = new State (controller.transform, Vector3.zero);
-		State goal_state = new State (goal, Vector3.zero);
+//		State start_state = new State (controller.transform, Vector3.zero);
+//		State goal_state = new State (goal, Vector3.zero);
 
 		StateTree random_tree = new StateTree ();
 
