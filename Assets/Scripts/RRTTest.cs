@@ -86,6 +86,7 @@ public class RRTTest : MonoBehaviour {
 	public Transform goal;
 	public ModelInterface model;
 	private ArrayList goalLines;
+	public int bestfScore;
 
 	// Use this for initialization
 	public void SetModel (ModelInterface inModel) {
@@ -109,11 +110,17 @@ public class RRTTest : MonoBehaviour {
 		State closestState;
 
 		int count = 0;
-		int bestfScore = 5;
+		//int bestfScore = 300;
+//		Ray ray;
+//		RaycastHit hit;
+
+		float minRangeX = 0f;
+		float maxRangeX = 100f;
+		float minRangeZ = 0f;
+		float maxRangeZ = 100f;
 
 
-
-		for(int i = 0; i < 1000; i++){
+		for(int i = 0; i < 15000; i++){
 
 
 			//currentState = (State)orderedStates.GetKey(0);
@@ -121,9 +128,22 @@ public class RRTTest : MonoBehaviour {
 			Vector3 point;
 			if(count < bestfScore){
 				count++;
-				point = new Vector3(UnityEngine.Random.Range(0f,100f),0.5f,UnityEngine.Random.Range(0f,100f));
+				point = new Vector3(UnityEngine.Random.Range(minRangeX,maxRangeX),0.5f,UnityEngine.Random.Range(minRangeZ,maxRangeZ));
+//				ray = new Ray (s.position, currentState.direction.normalized);
+//				if (Physics.Raycast (ray, out hit, currentState.direction.magnitude)) {
+//
+//				}
+
+
 			}else{
 				point = goal.position;
+				bestfScore--;
+				minRangeX = minRangeX + (goal.position.x-minRangeX)/40;
+				maxRangeX = maxRangeX - (maxRangeX-goal.position.x)/40;
+				minRangeZ = minRangeZ + (goal.position.z-minRangeZ)/40;
+				maxRangeZ = maxRangeZ - (maxRangeZ-goal.position.z)/40;
+
+				Debug.Log(minRangeX + " " + maxRangeX + " " + minRangeZ + " " + maxRangeZ);
 				count = 0;
 			}
 
@@ -147,14 +167,15 @@ public class RRTTest : MonoBehaviour {
 			newState.parent = closestState;
 
 			//newState.direction = point;  //WHy is this here?
-			float dist = model.DistanceTo(newState,goal.position);
+			//float dist = model.DistanceTo(newState,goal.position);
+			float dist = Vector3.Distance(newState.position,goal.position);
 			if(dist>1f && newState.collision){
 				continue;
 			}
 			states.Add (newState);
 
 			//Debug.Log (dist);
-			if(dist<0.5f){
+			if(dist<2f){
 				Stack statesPath = new Stack();
 				while(newState.parent!=null){
 					statesPath.Push(newState);
