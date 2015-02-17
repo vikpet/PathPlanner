@@ -15,7 +15,7 @@ public class GenPolygObst : MonoBehaviour {
 	private Mesh mesh;
 	private List<int> newTriangles = new List<int>();
 	private List<Vector3> newVertices = new List<Vector3>();
-	private List<List<Vector3>> map;
+	public List<List<Vector3>> map;
 	private List<int[]> edges;
 
 	// Use this for initialization

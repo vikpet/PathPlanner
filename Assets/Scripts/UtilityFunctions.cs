@@ -16,7 +16,7 @@ public class UtilityFunctions : MonoBehaviour {
 
 
 	// From: http://wiki.unity3d.com/index.php/PolyContainsPoint
-	static bool ContainsPoint (Vector3[] polyPoints3 , Vector3 p3) { 
+	public static bool ContainsPoint (Vector3[] polyPoints3 , Vector3 p3) { 
 
 		Vector2 p = new Vector2(p3.x, p3.z);
 		Vector2[] polyPoints = new Vector2[polyPoints3.Length];

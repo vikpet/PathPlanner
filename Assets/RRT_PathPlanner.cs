@@ -3,12 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class RRT_PathPlanner : MonoBehaviour {
+	public GameObject obstacles;
 	public GameObject MotionModel;
 	public float range;
 	public Transform goal;
 	private DynamicCarController controller;
+	private List<List<Vector3>> map;
 	// Use this for initialization
 	void Start () {
+		map = obstacles.GetComponent<GenPolygObst> ().map;
 		controller = MotionModel.GetComponent<DynamicCarController> ();
 //		DynamicCarController.State ;
 
@@ -38,7 +41,16 @@ public class RRT_PathPlanner : MonoBehaviour {
 	
 	}
 
-
+	/**
+	 * Returns true if the point collides with the polygon.
+	 */
+	bool checkCollision(Vector3 point) {
+		foreach(List<Vector3> polyg in map) {
+			if(UtilityFunctions.ContainsPoint(polyg.ToArray(), point))
+				return true;
+		}
+		return false;
+	}
 
 	public class StateTree {
 		Node root;

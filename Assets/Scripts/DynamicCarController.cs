@@ -42,12 +42,12 @@ public class DynamicCarController : MonoBehaviour {
 	void Update(){		
 		
 		if(!finish){
-			State next = MoveTowards (target.position, new State(transform, carRigidbody.velocity));
+			State next = MoveTowards (target.position, new State(transform, carRigidbody.velocity), Time.deltaTime);
 			carRigidbody.velocity = next.velocity;
 		}
 	}
 	
-	private State MoveTowards(Vector3 tarPos, State currentState) {
+	private State MoveTowards(Vector3 tarPos, State currentState, float delta_time) {
 	
 		Vector3 targetDir = tarPos - currentState.trans.position;
 		
@@ -69,27 +69,27 @@ public class DynamicCarController : MonoBehaviour {
 		if (Mathf.Abs (Vector3.Angle (targetDir, currentState.trans.forward)) > 60.0f) {	// We should back.
 			Debug.Log("Target behind car. Angle: " + Mathf.Abs (Vector3.Angle (targetDir, currentState.trans.forward)));
 
-			newRotation = Vector3.RotateTowards (currentState.trans.forward, targetDir, angular_velocity * Time.deltaTime, 0.0f);
+			newRotation = Vector3.RotateTowards (currentState.trans.forward, targetDir, angular_velocity * delta_time, 0.0f);
 			newRotation.y = 0.0f;
 			currentState.trans.rotation = Quaternion.LookRotation(newRotation);
-			currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY - a_max * Time.deltaTime);
+			currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY - a_max * delta_time);
 		} else if (targetDir.magnitude <= stopping_distance){ // We should break.
 
-			newRotation = Vector3.RotateTowards (currentState.trans.forward, targetDir, angular_velocity * Time.deltaTime, 0.0f);
+			newRotation = Vector3.RotateTowards (currentState.trans.forward, targetDir, angular_velocity * delta_time, 0.0f);
 			newRotation.y = 0.0f;
 			currentState.trans.rotation = Quaternion.LookRotation(newRotation);
 			if(CURRENT_VELOCITY > 0) {
-				currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY - a_max * Time.deltaTime);
+				currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY - a_max * delta_time);
 			} else {
-				currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY + a_max * Time.deltaTime);
+				currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY + a_max * delta_time);
 			}
 			Debug.Log("Break");
 
 		} else {	// else accelerate.
-			newRotation = Vector3.RotateTowards (currentState.trans.forward, targetDir, angular_velocity * Time.deltaTime, 0.0f);
+			newRotation = Vector3.RotateTowards (currentState.trans.forward, targetDir, angular_velocity * delta_time, 0.0f);
 			newRotation.y = 0.0f;
 			currentState.trans.rotation = Quaternion.LookRotation(newRotation);
-			currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY + a_max * Time.deltaTime);
+			currentState.velocity = currentState.trans.forward * (CURRENT_VELOCITY + a_max * delta_time);
 
 			Debug.Log("Accelerate");
 
@@ -147,7 +147,7 @@ public class DynamicCarController : MonoBehaviour {
 	}
 
 	public State GetNextState(Vector3 targetPos, State current) {
-		return MoveTowards (targetPos, current);
+		return MoveTowards (targetPos, current, 1.0f);
 	}
 
 
