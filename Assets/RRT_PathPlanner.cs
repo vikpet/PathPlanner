@@ -5,21 +5,21 @@ using System.Collections.Generic;
 public class RRT_PathPlanner : MonoBehaviour {
 	public GameObject MotionModel;
 	public float range;
+	public Transform goal;
 	private DynamicCarController controller;
 	// Use this for initialization
 	void Start () {
 		controller = MotionModel.GetComponent<DynamicCarController> ();
 //		DynamicCarController.State ;
 
-		State start = new State (controller.transform, Vector3.zero);
-		State goal = new State ();
+		State start_state = new State (controller.transform, Vector3.zero);
+		State goal_state = new State (goal, Vector3.zero);
 
 		StateTree random_tree = new StateTree ();
 
 		float x = Random.Range (0f, range);
 		float z = Random.Range (0f, range);
 		Vector3 random_instruction = new Vector3 (x, 0f, z);
-		controller.GetNextState ();
 
 		/*
 		G.init(qinit)
@@ -42,17 +42,17 @@ public class RRT_PathPlanner : MonoBehaviour {
 
 	public class StateTree {
 		Node root;
-		private List<State> allStates; // not memory efficient;
+		private List<Node> allNodes; // not memory efficient;
 
 		/**
 		 *	Performs a random instruction and adds the state to the tree; 
 		 */
 		public State AddRandomState () {
-
+			return null;
 		}
 
-		public State GetRandomState() {
-			return allStates [Random.Range (allStates.Count)];
+		public Node GetRandomNode() {
+			return allNodes [Random.Range (0, allNodes.Count)];
 		}
 
 		public void AddState(State state, Node parent, Transform instruction)  {
@@ -65,7 +65,9 @@ public class RRT_PathPlanner : MonoBehaviour {
 
 			if (root == null) {
 				root = new_node;
+				allNodes = new List<Node>();
 			}
+			allNodes.Add (new_node);
 		}
 
 		public class Node {

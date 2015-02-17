@@ -66,7 +66,7 @@ public class DynamicCarController : MonoBehaviour {
 		
 		Vector3 newRotation;
 		
-		if (Mathf.Abs (Vector3.Angle (targetDir, currentState.trans.forward)) > 100.0f) {	// We should back.
+		if (Mathf.Abs (Vector3.Angle (targetDir, currentState.trans.forward)) > 60.0f) {	// We should back.
 			Debug.Log("Target behind car. Angle: " + Mathf.Abs (Vector3.Angle (targetDir, currentState.trans.forward)));
 
 			newRotation = Vector3.RotateTowards (currentState.trans.forward, targetDir, angular_velocity * Time.deltaTime, 0.0f);
