@@ -12,7 +12,7 @@ public class HoverMotor : MonoBehaviour, ModelInterface {
 	private float closeness = 0.5f;
 	private float startTime;
 	private bool finish ;
-	private int count;
+	private int count = -1;
 	private State initialState;
 	//public float hoverForce = 65f;
 	//public float hoverHeight = 0.5f;
@@ -50,9 +50,10 @@ public class HoverMotor : MonoBehaviour, ModelInterface {
 	public void FollowStates(Stack s){
 		states = s;
 		initialState = (State)states.Pop ();
+		count = 0;
 	}
-	public Vector3 StartPosition(){
-		return transform.position;
+	public State StartState(){
+		return new State (transform.position,transform.forward, Vector3.Distance(transform.position, goal.position) ,0);
 	}
 
 	// Use this for initialization
@@ -92,22 +93,26 @@ public class HoverMotor : MonoBehaviour, ModelInterface {
 //			if (Vector3.Distance (transform.position, goTo.position) < closeness) {
 //				states.Pop ();
 //			}	
-
-
+			rigidbody.transform.forward = Vector3.RotateTowards (rigidbody.transform.forward, goTo.direction.normalized, turnSpeedRadians * Time.deltaTime, 0.0f);
+			//rigidbody.rotation = Quaternion.LookRotation(Vector3.RotateTowards (rigidbody.transform.forward, targetDir.normalized, turnSpeedRadians * Time.deltaTime, 0.0f));
+			rigidbody.velocity = goTo.velocity*rigidbody.transform.forward;
 
 
 
 			count++;
 			if(count>=50){
-
-
+				states.Pop ();
+				count = 0;
 			}
 			countText.text = "Time: " +(Time.time-startTime) ;
 
 
-		} else if (finish) {
+		} else if (finish && Vector3.Distance(rigidbody.transform.position, goal.position)>0.01f) {
 
-
+			rigidbody.transform.forward = Vector3.RotateTowards (rigidbody.transform.forward, (goal.position-rigidbody.position), turnSpeedRadians * Time.deltaTime, 0.0f);
+			rigidbody.velocity = Mathf.Min (1f,Vector3.Distance(rigidbody.transform.position, goal.position))*rigidbody.transform.forward;
+		}else if(finish){
+			rigidbody.velocity = new Vector3(0f,0f,0f);
 
 		}
 
@@ -135,39 +140,78 @@ public class HoverMotor : MonoBehaviour, ModelInterface {
 
 	}
 
-	public State GetNextState(State s, Vector3 v){
+	public State GetNextState(State s, Vector3 point/* v */){
 
-		Ray ray = new Ray (s.position, v-s.position);
-		RaycastHit hit; 
 
-		Vector3 pointDir = Vector3.Normalize (v-s.position);
-
-		float fScore;
-		float gScore;
+		State currentState = s.Copy();
+		currentState.point = point;
+		
+		Ray ray;
+		RaycastHit hit;
 		bool collision = false;
-		Vector3 newPosition;
-		if (Physics.Raycast (ray, out hit, 1f)) {
-			gScore = s.gScore+hit.distance;
-			newPosition = s.position;//+(hit.distance*pointDir);
-			fScore = gScore ;//+ Vector3.Distance(newPosition,goal.position);
-			//return new State(newPosition,hit.distance*pointDir, fScore, gScore);
-			pointDir *=hit.distance;
-			collision = true;
 
-		} else {
-			gScore = s.gScore++;
-			fScore = gScore + Vector3.Distance(s.position+pointDir,goal.position);
-			newPosition = s.position+pointDir;
 
+		
+		for(int i = 0; i <50; i++){
+			
+			//decision
+			currentState = MoveTowards(currentState,point);
+			
+			
+			
+			ray = new Ray (s.position, currentState.direction.normalized);
+			if (Physics.Raycast (ray, out hit, currentState.velocity)) {
+				//Vector3 incomingVec = hit.point - currentState.position;
+				//Vector3 reflectVec = Vector3.Reflect(incomingVec, hit.normal);
+				//currentState
+				currentState.collision = true;
+				break;
+			}else{
+				lines.Add (new Vector3[2] {currentState.position,currentState.position + currentState.direction/50});
+				currentState.position = currentState.position + (currentState.direction*currentState.velocity)*Time.deltaTime;
+			}
+			
 		}
 
-		lines.Add (new Vector3[2] {s.position,newPosition});
-	
-		State retState = new State(newPosition,pointDir,fScore , gScore);
-		retState.collision = collision;
-		retState.direction = v;
-		countText.text = ""+lines.Count;
-		return retState;
+
+		currentState.collision = collision;
+		currentState.point = point;
+		//currentState.parent = s;
+
+		return currentState;
+
+
+//		Ray ray = new Ray (s.position, v-s.position);
+//		RaycastHit hit; 
+//
+//		Vector3 pointDir = Vector3.Normalize (v-s.position);
+//
+//		float fScore;
+//		float gScore;
+//		bool collision = false;
+//		Vector3 newPosition;
+//		if (Physics.Raycast (ray, out hit, 1f)) {
+//			gScore = s.gScore+hit.distance;
+//			newPosition = s.position;//+(hit.distance*pointDir);
+//			fScore = gScore ;//+ Vector3.Distance(newPosition,goal.position);
+//			//return new State(newPosition,hit.distance*pointDir, fScore, gScore);
+//			pointDir *=hit.distance;
+//			collision = true;
+//
+//		} else {
+//			gScore = s.gScore++;
+//			fScore = gScore + Vector3.Distance(s.position+pointDir,goal.position);
+//			newPosition = s.position+pointDir;
+//
+//		}
+//
+//		lines.Add (new Vector3[2] {s.position,newPosition});
+//	
+//		State retState = new State(newPosition,pointDir,fScore , gScore);
+//		retState.collision = collision;
+//		retState.direction = v;
+//		countText.text = ""+lines.Count;
+//		return retState;
 
 	}
 
@@ -184,31 +228,47 @@ public class HoverMotor : MonoBehaviour, ModelInterface {
 	}
 	
 	
-	private void MoveTowards(Vector3 tarPos) {
-		//Vector3 direction = tarPos - transform.position; // Calculate the direction the target is in.
+	private State MoveTowards(State s, Vector3 tarPos) {
 
-		Vector3 targetDir = tarPos - transform.position;
 
-		//float angle = Vector3.Angle (difPos,Vector3.forward);
+		Vector3 targetDir = tarPos - s.position;
+
+
+		float angle = Vector3.Angle (s.direction,Vector3.forward);
 
 
 		//float step = turnSpeedRadians * Time.deltaTime;
-		float step = (carRigidbody.velocity.magnitude/speedMultiplier)*turnSpeedRadians * Time.deltaTime;
+
+		if (targetDir.magnitude < speed * 2 && Mathf.Deg2Rad * angle > turnSpeedRadians) {
+
+			s.velocity = targetDir.magnitude / 2;
+			s.direction = Vector3.RotateTowards (s.direction.normalized, targetDir.normalized, turnSpeedRadians * Time.deltaTime, 0.0f);
+
+		} else {
+			s.velocity = Mathf.Min (tarPos.magnitude,1f);
+			s.direction = Vector3.RotateTowards (s.direction.normalized, targetDir.normalized, turnSpeedRadians * Time.deltaTime, 0.0f);
+
+		}
+
+
+
+		return s;
+		//float step = (carRigidbody.velocity.magnitude/speedMultiplier)*turnSpeedRadians * Time.deltaTime;
 
 		
 		//Debug.Log (step + " " + (carRigidbody.velocity.magnitude/speedMultiplier)*step);
 
 
-		targetDir.y = 0.0f;
+		//targetDir.y = 0.0f;
 
-		Vector3 newRotation = Vector3.RotateTowards (transform.forward, targetDir, step, 0.0f);
+		//Vector3 newRotation = Vector3.RotateTowards (transform.forward, targetDir, step, 0.0f);
 
 
 
 		//Debug.DrawRay(transform.position, newRotation*2	, Color.red);
 		
 
-		transform.rotation = Quaternion.LookRotation(newRotation);
+		//transform.rotation = Quaternion.LookRotation(newRotation);
 
 
 
@@ -220,7 +280,7 @@ public class HoverMotor : MonoBehaviour, ModelInterface {
 
 
 
-		carRigidbody.velocity = carRigidbody.transform.forward * speedMultiplier;
+		//carRigidbody.velocity = carRigidbody.transform.forward * speedMultiplier;
 
 
 

@@ -21,7 +21,7 @@ public class KinPointPP : MonoBehaviour, ModelInterface {
 
 //	private float powerInput;
 //	private float turnInput;
-	private Rigidbody ourRigidbody;
+	//private Rigidbody ourRigidbody;
 
 	public ArrayList lines;
 
@@ -41,18 +41,19 @@ public class KinPointPP : MonoBehaviour, ModelInterface {
 //	private bool finish;
 
 	// Use this for initialization
-	void Awake() {
-
-		ourRigidbody = GetComponent <Rigidbody> ();
-
-	}
+//	void Awake() {
+//
+//		ourRigidbody = GetComponent <Rigidbody> ();
+//
+//	}
 
 	public void FollowStates(Stack s){
 		states = s;
 		initialState = (State)states.Pop ();
+		count = 0;
 	}
-	public Vector3 StartPosition(){
-		return transform.position;
+	public State StartState(){
+		return new State (transform.position,new Vector3(0f,0f,0f), Vector3.Distance(transform.position, goal.position) ,0);
 	}
 
 	// Use this for initialization
@@ -93,24 +94,25 @@ public class KinPointPP : MonoBehaviour, ModelInterface {
 //				states.Pop ();
 //			}	
 
-			initialState.position = transform.position;
-			initialState.direction = rigidbody.velocity;
+			//initialState.position = transform.position;
+			//initialState.direction = rigidbody.velocity;
 
-			initialState = GetNextState(initialState, goTo.point);
+			//initialState = MoveTowards(initialState, goTo.point);
 
+			rigidbody.velocity = goTo.direction;
 
 
 			count++;
 			if(count>=50){
 				states.Pop();
-
+				count = 0;
 			}
 			countText.text = "Time: " +(Time.time-startTime) ;
 
 
 		} else if (finish) {
 
-
+			rigidbody.velocity = new Vector3(0f,0f,0f);
 
 		}
 
@@ -140,20 +142,26 @@ public class KinPointPP : MonoBehaviour, ModelInterface {
 
 	public State GetNextState(State s, Vector3 v){
 
+
+		State retState = s.Copy ();
+
 		Vector3 point = v-s.position;
 
-		Ray ray = new Ray (s.position, point.normalized);
+		retState = MoveTowards (retState, v);
+
+		Ray ray = new Ray (s.position, retState.direction.normalized);
 		RaycastHit hit; 
 
-		Vector3 direction = new Vector3 (0f,0f,0f);
+
+		//Vector3 direction = new Vector3 (0f,0f,0f);
 
 		float fScore;
 		float gScore;
 		bool collision = false;
-		Vector3 newPosition;
+		//Vector3 newPosition;
 		if (Physics.Raycast (ray, out hit, speed)) {
 			gScore = s.gScore+hit.distance;
-			newPosition = s.position;//+(hit.distance*pointDir);
+			//newPosition = s.position;//+(hit.distance*pointDir);
 			fScore = gScore ;//+ Vector3.Distance(newPosition,goal.position);
 			//return new State(newPosition,hit.distance*pointDir, fScore, gScore);
 
@@ -161,26 +169,20 @@ public class KinPointPP : MonoBehaviour, ModelInterface {
 
 		} else {
 			gScore = s.gScore++;
-			fScore = gScore + Vector3.Distance(s.position+pointDir,goal.position);
+			fScore = gScore + Vector3.Distance(s.position+retState.direction,goal.position);
 			//pointDir *= speed;
 
-			if(point.magnitude<speed){
+			retState.position = retState.position+retState.direction;
 
-				direction = point;
-				newPosition = point;
-
-			}else{
-				direction = point.normalized*speed;
-				newPosition = s.position+point.normalized*speed;
-			}
-
-
+			//lines.Add (new Vector3[2] {s.position,retState.position});
 		}
 
-		lines.Add (new Vector3[2] {s.position,newPosition});
+		lines.Add (new Vector3[2] {s.position,retState.position});
 	
-		State retState = new State(newPosition,direction,fScore , gScore, v);
+		//State retState = new State(newPosition,direction,fScore , gScore, v);
 		retState.collision = collision;
+		retState.point = v;
+		//retState.parent = s;
 //		retState.direction = pointDir*speed;
 		countText.text = ""+lines.Count;
 		return retState;
@@ -199,12 +201,24 @@ public class KinPointPP : MonoBehaviour, ModelInterface {
 
 	}
 	
-	
-	private void MoveTowards(State currentState,Vector3 tarPos) {
+	//only change dir not position
+	private State MoveTowards(State currentState,Vector3 tarPos) {
 		//Vector3 direction = tarPos - transform.position; // Calculate the direction the target is in.
 
-		Vector3 point = tarPos - transform.position;
+		Vector3 point = tarPos - currentState.position;
 
+
+		if(point.magnitude<speed){
+			
+			currentState.direction = point;
+
+			
+		}else{
+			currentState.direction = point.normalized*speed;
+
+		}
+
+		return currentState;
 
 //		if(point.magnitude<speed){
 //			
@@ -228,7 +242,7 @@ public class KinPointPP : MonoBehaviour, ModelInterface {
 		//Debug.Log (step + " " + (carRigidbody.velocity.magnitude/speedMultiplier)*step);
 
 
-		targetDir.y = 0.0f;
+		//targetDir.y = 0.0f;
 
 		//Vector3 newRotation = Vector3.RotateTowards (transform.forward, targetDir, step, 0.0f);
 

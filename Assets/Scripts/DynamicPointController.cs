@@ -153,8 +153,8 @@ public class DynamicPointController : MonoBehaviour, ModelInterface {
 		prevP = initialState.position;
 	}
 
-	public Vector3 StartPosition(){
-		return transform.position;
+	public State StartState(){
+		return new State (transform.position,new Vector3(0f,0f,0f), Vector3.Distance(transform.position, localgoal.position) ,0);
 	}
 
 	void Start () {

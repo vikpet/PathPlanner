@@ -5,13 +5,14 @@ using System;
 public interface ModelInterface{
 	State GetNextState (State s, Vector3 v);
 	void FollowStates(Stack s);
-	Vector3 StartPosition();
+	State StartState();
 	float DistanceTo(State s, Vector3 point);
 }
 
 public class State /*: IComparable*/ {
 	public Vector3 position;
 	public Vector3 direction;
+	public float velocity;
 	public Vector3 point;
 	public State parent;
 	public bool collision;
@@ -29,6 +30,7 @@ public class State /*: IComparable*/ {
 		this.fScore = fScore;
 		this.gScore = gScore;
 		collision = false;
+		velocity = 0f;
 
 	}
 
@@ -39,6 +41,7 @@ public class State /*: IComparable*/ {
 		this.gScore = gScore;
 		this.point = point;
 		collision = false;
+		velocity = 0f;
 	}
 
 	public State Copy(){
@@ -87,6 +90,7 @@ public class RRTTest : MonoBehaviour {
 	public ModelInterface model;
 	private ArrayList goalLines;
 	public int bestfScore;
+	public int iterations = 10000;
 
 	// Use this for initialization
 	public void SetModel (ModelInterface inModel) {
@@ -97,8 +101,10 @@ public class RRTTest : MonoBehaviour {
 		ArrayList states = new ArrayList ();
 
 		//Vector3 startPosition = new Vector3 (33f,0.5f,70f);
-		Vector3 startPosition = model.StartPosition ();
-		State initialState = new State (startPosition,new Vector3(0f,0f,0f), Vector3.Distance(startPosition, goal.position) ,0);
+		//Vector3 startPosition = model.StartPosition ();
+		//State initialState = new State (startPosition,new Vector3(0f,0f,0f), Vector3.Distance(startPosition, goal.position) ,0);
+
+		State initialState = model.StartState ();
 
 		State /*currentState,*/ newState;
 
@@ -120,7 +126,7 @@ public class RRTTest : MonoBehaviour {
 		float maxRangeZ = 100f;
 
 
-		for(int i = 0; i < 15000; i++){
+		for(int i = 0; i < iterations; i++){
 
 
 			//currentState = (State)orderedStates.GetKey(0);
@@ -231,11 +237,5 @@ public class RRTTest : MonoBehaviour {
 		}
 		
 		
-	}
-
-	
-	// Update is called once per frame
-	void Update () {
-
 	}
 }
